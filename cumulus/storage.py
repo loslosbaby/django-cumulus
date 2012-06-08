@@ -149,6 +149,9 @@ class CloudFilesStorage(Storage):
             except (HTTPException, SSLError), e:
                 if tries == self.max_retries:
                     raise
+                # make connection and container re-init on next try
+                del self._connection
+                del self._container
                 logger.warning('Failed to retrieve %s: %r (attempt %d/%d)' % (
                     name, e, tries, self.max_retries))
 
