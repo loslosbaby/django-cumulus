@@ -2,6 +2,8 @@ import mimetypes
 import os
 import re
 import logging
+from httplib import HTTPException
+from ssl import SSLError
 from gzip import GzipFile
 from StringIO import StringIO
 
@@ -144,7 +146,7 @@ class CloudFilesStorage(Storage):
             try:
                 tries += 1
                 return self.container.get_object(name)
-            except Exception, e:
+            except (HTTPException, SSLError), e:
                 if tries == self.max_retries:
                     raise
                 logger.warning('Failed to retrieve %s: %r (attempt %d/%d)' % (
