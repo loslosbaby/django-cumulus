@@ -1,7 +1,8 @@
+import logging
 import mimetypes
 import os
 import re
-import logging
+import time
 from httplib import HTTPException
 from ssl import SSLError
 from gzip import GzipFile
@@ -150,6 +151,7 @@ class CloudFilesStorage(Storage):
                 if tries == self.max_retries:
                     raise
                 # make connection and container re-init on next try
+                time.sleep(0.5)
                 del self._connection
                 del self._container
                 logger.warning('Failed to retrieve %s: %r (attempt %d/%d)' % (
