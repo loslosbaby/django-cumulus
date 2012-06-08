@@ -74,7 +74,6 @@ class CloudFilesStorage(Storage):
         self.ttl = CUMULUS['TTL']
         self.use_ssl = CUMULUS['USE_SSL']
 
-
     def __getstate__(self):
         """
         Return a picklable representation of the storage.
@@ -91,7 +90,7 @@ class CloudFilesStorage(Storage):
             self._connection = cloudfiles.get_connection(
                                   username=self.username,
                                   api_key=self.api_key,
-                                  authurl = self.auth_url,
+                                  authurl=self.auth_url,
                                   timeout=self.timeout,
                                   servicenet=self.use_servicenet,
                                   **self.connection_kwargs)
@@ -272,7 +271,7 @@ class CloudFilesStorage(Storage):
         # collectstatic compares these dates, we need to depend 
         # on dateutil to help us convert timezones.
         try:
-           from dateutil import parser, tz
+            from dateutil import parser, tz
         except ImportError:
             raise NotImplementedError()
         obj = self.container.get_object(name)
