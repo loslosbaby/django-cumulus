@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import re
+import logging
 from gzip import GzipFile
 from StringIO import StringIO
 
@@ -12,6 +13,7 @@ from django.core.files.storage import Storage
 
 from .settings import CUMULUS
 
+logger = logging.getLogger(__name__)
 
 HEADER_PATTERNS = tuple((re.compile(p), h) for p, h in CUMULUS.get('HEADERS', {}))
 
@@ -60,7 +62,7 @@ class CloudFilesStorage(Storage):
     default_quick_listdir = True
 
     def __init__(self, username=None, api_key=None, container=None, timeout=None,
-                 connection_kwargs=None):
+                 max_retries=None, connection_kwargs=None):
         """
         Initialize the settings for the connection and container.
         """
@@ -69,6 +71,7 @@ class CloudFilesStorage(Storage):
         self.connection_kwargs = connection_kwargs or {}
         self.container_name = container or CUMULUS['CONTAINER']
         self.timeout = timeout or CUMULUS['TIMEOUT']
+        self.max_retries = max_retries or CUMULUS['MAX_RETRIES']
         self.use_servicenet = CUMULUS['SERVICENET']
         self.username = username or CUMULUS['USERNAME']
         self.ttl = CUMULUS['TTL']
@@ -136,7 +139,16 @@ class CloudFilesStorage(Storage):
         """
         Helper function to get retrieve the requested Cloud Files Object.
         """
-        return self.container.get_object(name)
+        tries = 0
+        while True:
+            try:
+                tries += 1
+                return self.container.get_object(name)
+            except Exception, e:
+                if tries == self.max_retries:
+                    raise
+                logger.warning('Failed to retrieve %s: %r (attempt %d/%d)' % (
+                    name, e, tries, self.max_retries))
 
     def _open(self, name, mode='rb'):
         """
@@ -385,6 +397,7 @@ class CloudFilesStorageFile(File):
 
     def seek(self, pos):
         self._pos = pos
+
 
 class ThreadSafeCloudFilesStorage(CloudFilesStorage):
     """
