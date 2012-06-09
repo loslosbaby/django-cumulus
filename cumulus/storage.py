@@ -2,7 +2,6 @@ import logging
 import mimetypes
 import os
 import re
-import time
 from httplib import HTTPException
 from ssl import SSLError
 from gzip import GzipFile
@@ -150,12 +149,11 @@ class CloudFilesStorage(Storage):
             except (HTTPException, SSLError), e:
                 if tries == self.max_retries:
                     raise
-                # make connection and container re-init on next try
-                time.sleep(0.5)
-                del self._connection
-                del self._container
                 logger.warning('Failed to retrieve %s: %r (attempt %d/%d)' % (
                     name, e, tries, self.max_retries))
+                # make connection and container re-init on next try
+                del self._connection
+                del self._container
 
     def _open(self, name, mode='rb'):
         """
