@@ -20,6 +20,14 @@ logger = logging.getLogger(__name__)
 HEADER_PATTERNS = tuple((re.compile(p), h) for p, h in CUMULUS.get('HEADERS', {}))
 
 
+def print_debug(e):
+    """Temp function to debug Rackspace SSL issues."""
+    print e, repr(e)
+    if hasattr(e, '__dict__'):
+        print e.__dict__
+    logger.exception(e)
+
+
 def sync_headers(cloud_obj, headers={}, header_patterns=HEADER_PATTERNS):
     """
     Overwrite the given cloud_obj's headers with the ones given as ``headers`
@@ -147,6 +155,7 @@ class CloudFilesStorage(Storage):
                 tries += 1
                 return self.container.get_object(name)
             except (HTTPException, SSLError), e:
+                print_debug(e)
                 if tries == self.max_retries:
                     raise
                 logger.warning('Failed to retrieve %s: %r (attempt %d/%d)' % (
@@ -198,7 +207,11 @@ class CloudFilesStorage(Storage):
             cloud_obj.size = content.file.size
         else:
             cloud_obj.size = content.size
-        cloud_obj.send(content)
+        try:
+            cloud_obj.send(content)
+        except SSLError, e:
+            print_debug(e)
+            raise
         content.close()
         sync_headers(cloud_obj)
         return name
