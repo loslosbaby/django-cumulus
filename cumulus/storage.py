@@ -230,7 +230,7 @@ class CloudFilesStorage(Storage):
                 break
             except (HTTPException, SSLError, ResponseError), e:
                 if getattr(e, 'status', None) == 404:
-                    pass
+                    break
                 if tries == self.max_retries:
                     raise
                 logger.warning('Failed to delete %s: %r (attempt %d/%d)' % (
