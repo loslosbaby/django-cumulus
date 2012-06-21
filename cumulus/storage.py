@@ -151,9 +151,8 @@ class CloudFilesStorage(Storage):
                     raise
                 logger.warning('Failed to retrieve %s: %r (attempt %d/%d)' % (
                     name, e, tries, self.max_retries))
-                # make connection and container re-init on next try
-                del self._connection
-                del self._container
+                # re-init the connection before retrying
+                self.connection.http_connect()
 
     def _open(self, name, mode='rb'):
         """
@@ -210,6 +209,8 @@ class CloudFilesStorage(Storage):
                     raise
                 logger.warning('Failed to send %s: %r (attempt %d/%d)' % (
                     name, e, tries, self.max_retries))
+                # re-init the connection before retrying
+                self.connection.http_connect()
             finally:
                 content.close()
         # if it went through, apply the custom headers
@@ -220,13 +221,22 @@ class CloudFilesStorage(Storage):
         """
         Deletes the specified file from the storage system.
         """
-        try:
-            self.container.delete_object(name)
-        except ResponseError, exc:
-            if exc.status == 404:
-                pass
-            else:
-                raise
+        # try deleting the file <max_retries> tries
+        tries = 0
+        while True:
+            try:
+                tries += 1
+                self.container.delete_object(name)
+                break
+            except (HTTPException, SSLError, ResponseError), e:
+                if getattr(e, 'status', None) == 404:
+                    pass
+                if tries == self.max_retries:
+                    raise
+                logger.warning('Failed to delete %s: %r (attempt %d/%d)' % (
+                    name, e, tries, self.max_retries))
+                # re-init the connection before retrying
+                self.connection.http_connect()
 
     def exists(self, name):
         """
