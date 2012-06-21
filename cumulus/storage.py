@@ -70,7 +70,7 @@ class CloudFilesStorage(Storage):
         """
         self.api_key = api_key or CUMULUS['API_KEY']
         self.auth_url = CUMULUS['AUTH_URL']
-        self.connection_kwargs = connection_kwargs or {}
+        self.connection_kwargs = connection_kwargs or CUMULUS['CONNECTION_ARGS']
         self.container_name = container or CUMULUS['CONTAINER']
         self.timeout = timeout or CUMULUS['TIMEOUT']
         self.max_retries = max_retries or CUMULUS['MAX_RETRIES']

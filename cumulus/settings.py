@@ -11,6 +11,7 @@ CUMULUS = {
     'SERVICENET': False,
     'TIMEOUT': 5,
     'MAX_RETRIES': 0,
+    'CONNECTION_ARGS': {},
     'TTL': default_cdn_ttl,  # 86400s (24h), python-cloudfiles default
     'USE_SSL': False,
     'USERNAME': None,
