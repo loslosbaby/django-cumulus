@@ -203,6 +203,7 @@ class CloudFilesStorage(Storage):
             try:
                 tries += 1
                 cloud_obj.send(content)
+                content.close()
                 break
             except (HTTPException, SSLError), e:
                 if tries == self.max_retries:
@@ -211,8 +212,6 @@ class CloudFilesStorage(Storage):
                     name, e, tries, self.max_retries))
                 # re-init the connection before retrying
                 self.connection.http_connect()
-            finally:
-                content.close()
         # if it went through, apply the custom headers
         sync_headers(cloud_obj)
         return name
