@@ -210,7 +210,9 @@ class CloudFilesStorage(Storage):
                     raise
                 logger.warning('Failed to send %s: %r (attempt %d/%d)' % (
                     name, e, tries, self.max_retries))
-                # re-init the connection before retrying
+                # re-init the content and connection before retrying
+                if hasattr(content, 'seek'):
+                    content.seek(0)
                 self.connection.http_connect()
         # if it went through, apply the custom headers
         sync_headers(cloud_obj)
