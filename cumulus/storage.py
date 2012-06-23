@@ -139,7 +139,7 @@ class CloudFilesStorage(Storage):
 
     def _get_cloud_obj(self, name):
         """
-        Helper function to get retrieve the requested Cloud Files Object.
+        Helper function to retrieve the requested Cloud Files Object.
         """
         tries = 0
         while True:
@@ -147,7 +147,7 @@ class CloudFilesStorage(Storage):
                 tries += 1
                 return self.container.get_object(name)
             except (HTTPException, SSLError), e:
-                if tries == self.max_retries:
+                if tries >= self.max_retries:
                     raise
                 logger.warning('Failed to retrieve %s: %r (attempt %d/%d)' % (
                     name, e, tries, self.max_retries))
@@ -206,7 +206,7 @@ class CloudFilesStorage(Storage):
                 content.close()
                 break
             except (HTTPException, SSLError), e:
-                if tries == self.max_retries:
+                if tries >= self.max_retries:
                     raise
                 logger.warning('Failed to send %s: %r (attempt %d/%d)' % (
                     name, e, tries, self.max_retries))
@@ -232,7 +232,7 @@ class CloudFilesStorage(Storage):
             except (HTTPException, SSLError, ResponseError), e:
                 if getattr(e, 'status', None) == 404:
                     break
-                if tries == self.max_retries:
+                if tries >= self.max_retries:
                     raise
                 logger.warning('Failed to delete %s: %r (attempt %d/%d)' % (
                     name, e, tries, self.max_retries))
