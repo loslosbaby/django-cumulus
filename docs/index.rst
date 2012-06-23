@@ -188,7 +188,7 @@ Below are the default settings::
         'CONTAINER': None,
         'SERVICENET': False,
         'TIMEOUT': 5,
-        'MAX_RETRIES': 0,
+        'MAX_RETRIES': 5,
         'TTL': 86400,
         'USE_SSL': False,
         'USERNAME': None,
@@ -247,7 +247,7 @@ The timeout to use when attempting connections to Cloud Files. Defaults to 5 (se
 MAX_RETRIES
 -----------
 
-The number of retry attempts that should be made when a connection or SSL error occurs while reading a file on the container. Defaults to 0. Set this to a higher value if you experience connectivity issues.
+The number of retry attempts that should be made when a connection error or SSL error occurs while reading a file on the container. Defaults to 5.
 
 CONNECTION_ARGS
 ---------------
