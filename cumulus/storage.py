@@ -168,7 +168,7 @@ class CloudFilesStorage(Storage):
         (path, last) = os.path.split(name)
         if path:
             try:
-                self.container.get_object(path)
+                self._get_cloud_obj(path)
             except NoSuchObject:
                 self._save(path, CloudStorageDirectory(path))
 
@@ -315,7 +315,7 @@ class CloudFilesStorage(Storage):
             from dateutil import parser, tz
         except ImportError:
             raise NotImplementedError()
-        obj = self.container.get_object(name)
+        obj = self._get_cloud_obj(name)
         # convert to string to date
         date = parser.parse(obj.last_modified)
         # if the date has no timzone, assume UTC
