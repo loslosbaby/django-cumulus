@@ -146,7 +146,7 @@ class CloudFilesStorage(Storage):
             try:
                 tries += 1
                 return self.container.get_object(name)
-            except (HTTPException, SSLError), e:
+            except (HTTPException, SSLError, ResponseError), e:
                 if tries >= self.max_retries:
                     raise
                 logger.warning('Failed to retrieve %s: %r (attempt %d/%d)' % (
@@ -205,7 +205,7 @@ class CloudFilesStorage(Storage):
                 cloud_obj.send(content)
                 content.close()
                 break
-            except (HTTPException, SSLError), e:
+            except (HTTPException, SSLError, ResponseError), e:
                 if tries >= self.max_retries:
                     raise
                 logger.warning('Failed to send %s: %r (attempt %d/%d)' % (
