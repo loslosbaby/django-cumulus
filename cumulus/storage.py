@@ -23,7 +23,7 @@ HEADER_PATTERNS = tuple((re.compile(p), h) for p, h in CUMULUS.get('HEADERS', {}
 def sync_headers(cloud_obj, headers={}, header_patterns=HEADER_PATTERNS):
     """
     Overwrite the given cloud_obj's headers with the ones given as ``headers`
-    and add additional headers as defined in the HEADERS setting depending on 
+    and add additional headers as defined in the HEADERS setting depending on
     the cloud_obj's file name.
     """
     if not hasattr(cloud_obj, 'headers'):
@@ -309,20 +309,21 @@ class CloudFilesStorage(Storage):
         # depending on whether or not we pre-loaded objects.
         # When pre-loaded, timezone is not included but we
         # assume UTC. Since FileStorage returns localtime, and
-        # collectstatic compares these dates, we need to depend 
+        # collectstatic compares these dates, we need to depend
         # on dateutil to help us convert timezones.
         try:
             from dateutil import parser, tz
         except ImportError:
             raise NotImplementedError()
         obj = self._get_cloud_obj(name)
-        # convert to string to date
+        # convert string to date
         date = parser.parse(obj.last_modified)
-        # if the date has no timzone, assume UTC
+        # if the date has no timezone, assume UTC
         if date.tzinfo == None:
             date = date.replace(tzinfo=tz.tzutc())
         # convert date to local time w/o timezone
         date = date.astimezone(tz.tzlocal()).replace(tzinfo=None)
+        logger.debug('__ modified_time for %s: %s' % (name, date))
         return date
 
 
