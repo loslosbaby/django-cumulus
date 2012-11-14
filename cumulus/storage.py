@@ -323,7 +323,6 @@ class CloudFilesStorage(Storage):
             date = date.replace(tzinfo=tz.tzutc())
         # convert date to local time w/o timezone
         date = date.astimezone(tz.tzlocal()).replace(tzinfo=None)
-        logger.debug('__ modified_time for %s: %s' % (name, date))
         return date
 
 
